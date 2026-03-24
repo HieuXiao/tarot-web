@@ -1,47 +1,45 @@
-# Mystic Draw - Tarot App (React + TypeScript)
+# 🔮 Mystic Draw - Ứng dụng Bói bài Tarot (React + TypeScript)
 
-This repository contains the migrated and modernized Tarot card drawing application. This document serves as a guide for setting up and working with the new React-based structure.
+Đây là phiên bản hiện đại hóa của ứng dụng bói bài Tarot, đã được chuyển đổi từ vanilla JavaScript sang React. Tài liệu này hướng dẫn cách thiết lập và làm việc với cấu trúc dự án mới.
 
-## 🛠️ Quick Start
+## 🛠️ Hướng dẫn Nhanh
 
-To run the application locally, follow these steps:
+Để chạy ứng dụng trên máy local, hãy làm theo các bước sau:
 
-1.  **Install Dependencies**:
+1.  **Cài đặt các gói phụ thuộc (Dependencies)**:
     ```bash
     npm install
     ```
 
-2.  **Start Development Server**:
+2.  **Chạy máy chủ phát triển (Development Server)**:
     ```bash
     npm run dev
     ```
 
-3.  **Open the App**:
-    Navigate to [http://localhost:5173](http://localhost:5173) in your browser.
+3.  **Mở ứng dụng**:
+    Truy cập địa chỉ [http://localhost:5173](http://localhost:5173) trên trình duyệt của bạn.
 
-## 💻 Development Commands
+## 💻 Các Lệnh Phát triển
 
-| Command | Action |
+| Lệnh | Hành động |
 | :--- | :--- |
-| `npm run dev` | Starts the Vite development server with Hot Module Replacement (HMR). |
-| `npm run build` | Builds the production-ready application in the `/dist` folder. |
-| `npm run preview` | Previews the production build locally. |
-| `npm run lint` | Runs ESLint to check for code quality and TypeScript errors. |
+| `npm run dev` | Khởi chạy máy chủ phát triển Vite với tính năng cập nhật nhanh (HMR). |
+| `npm run build` | Xây dựng phiên bản sản xuất trong thư mục `/dist`. |
+| `npm run preview` | Xem trước bản build sản xuất trên máy local. |
+| `npm run lint` | Chạy ESLint để kiểm tra chất lượng code và lỗi TypeScript. |
 
-## 📂 Project Organization
+## 📂 Cấu trúc Phân mục Dự án
 
-- **`src/App.tsx`**: The main application logic and state orchestration.
-- **`src/components/`**: All UI components (Deck, Card, Modal, etc.).
-- **`src/constants/tarotData.ts`**: The central data file for all 78 tarot cards and their meanings.
-- **`src/hooks/useSound.ts`**: Custom hook for managing audio feedback.
-- **`src/types.ts`**: Core TypeScript interfaces for card and meaning data.
-- **`public/`**: Contains static assets like card images (`/Cards`) and audio files.
+- **`src/App.tsx`**: Logic chính của ứng dụng và quản lý trạng thái (state).
+- **`src/components/`**: Chứa toàn bộ các thành phần giao diện (Deck, Card, Modal, v.v.).
+- **`src/constants/tarotData.ts`**: Tệp dữ liệu trung tâm chứa thông tin của 78 lá bài và ý nghĩa của chúng.
+- **`src/hooks/useSound.ts`**: Hook tùy chỉnh để quản lý âm thanh phản hồi.
+- **`src/types.ts`**: Định nghĩa các Interface và Type cho dữ liệu bài Tarot.
+- **`public/`**: Chứa các tài nguyên tĩnh như hình ảnh lá bài (`/Cards`) và tệp âm thanh.
 
-## 🎨 Customizing the App
+## 🎨 Tùy chỉnh Ứng dụng
 
-- **Meanings & Advice**: Edit `src/constants/tarotData.ts` to change card descriptions or advice.
-- **Styles**: Modify `src/index.css` for global styles or add CSS modules to specific components.
-- **Assets**: Add new card images or sounds to the `public/` directory and update the constants accordingly.
+- **Ý nghĩa & Lời khuyên**: Chỉnh sửa tệp `src/constants/tarotData.ts` để thay đổi mô tả hoặc lời khuyên của các lá bài.
+- **Giao diện (Styles)**: Chỉnh sửa `src/index.css` cho các kiểu style toàn cục hoặc thêm CSS modules cho từng component cụ thể.
+- **Tài nguyên (Assets)**: Thêm hình ảnh hoặc âm thanh mới vào thư mục `public/` và cập nhật các hằng số tương ứng trong code.
 
----
-&copy; 2025 [datturbomoon](https://github.com/datturbomoon). All rights reserved.
