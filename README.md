@@ -1,61 +1,47 @@
-# Mystic Draw - Tarot App
+# Mystic Draw - Tarot App (React + TypeScript)
 
-A modern, immersive Tarot card drawing application migrated from vanilla JavaScript to **React + TypeScript + Vite**.
+This repository contains the migrated and modernized Tarot card drawing application. This document serves as a guide for setting up and working with the new React-based structure.
 
-## ✨ Features
+## 🛠️ Quick Start
 
-- **Interactive Deck**: Draw from a full deck of 78 tarot cards.
-- **Mystic Animations**: Smooth shuffle (scatter & regroup) and card flipping animations.
-- **Detailed Meanings**: Comprehensive upright and reversed meanings for every card, including specialized advice.
-- **Glassmorphism UI**: A premium, dark-themed design with modern typography and immersive aesthetics.
-- **Atmospheric Effects**:
-  - Interactive background particles using `particles.js`.
-  - Realistic sound effects for shuffling and card flipping.
-- **Responsive Design**: Optimized for both desktop and mobile devices.
+To run the application locally, follow these steps:
 
-## 🚀 Getting Started
+1.  **Install Dependencies**:
+    ```bash
+    npm install
+    ```
 
-### Prerequisites
+2.  **Start Development Server**:
+    ```bash
+    npm run dev
+    ```
 
-- [Node.js](https://nodejs.org/) (v18 or higher)
-- npm or yarn
+3.  **Open the App**:
+    Navigate to [http://localhost:5173](http://localhost:5173) in your browser.
 
-### Installation
+## 💻 Development Commands
 
-1. Clone the repository:
-   ```bash
-   git clone https://github.com/HieuXiao/tarot-web.git
-   cd tarot-web
-   ```
+| Command | Action |
+| :--- | :--- |
+| `npm run dev` | Starts the Vite development server with Hot Module Replacement (HMR). |
+| `npm run build` | Builds the production-ready application in the `/dist` folder. |
+| `npm run preview` | Previews the production build locally. |
+| `npm run lint` | Runs ESLint to check for code quality and TypeScript errors. |
 
-2. Install dependencies:
-   ```bash
-   npm install
-   ```
+## 📂 Project Organization
 
-3. Start the development server:
-   ```bash
-   npm run dev
-   ```
+- **`src/App.tsx`**: The main application logic and state orchestration.
+- **`src/components/`**: All UI components (Deck, Card, Modal, etc.).
+- **`src/constants/tarotData.ts`**: The central data file for all 78 tarot cards and their meanings.
+- **`src/hooks/useSound.ts`**: Custom hook for managing audio feedback.
+- **`src/types.ts`**: Core TypeScript interfaces for card and meaning data.
+- **`public/`**: Contains static assets like card images (`/Cards`) and audio files.
 
-4. Open [http://localhost:5173](http://localhost:5173) in your browser.
+## 🎨 Customizing the App
 
-## 🛠️ Technology Stack
+- **Meanings & Advice**: Edit `src/constants/tarotData.ts` to change card descriptions or advice.
+- **Styles**: Modify `src/index.css` for global styles or add CSS modules to specific components.
+- **Assets**: Add new card images or sounds to the `public/` directory and update the constants accordingly.
 
-- **Framework**: React 18
-- **Language**: TypeScript
-- **Tooling**: Vite
-- **Styling**: Vanilla CSS
-- **Animation**: CSS Keyframes + `particles.js`
-
-## 📂 Project Structure
-
-- `src/components`: UI components (Card, Deck, Modal, etc.)
-- `src/constants`: Tarot card data and meanings.
-- `src/hooks`: Custom React hooks (e.g., `useSound`).
-- `src/types.ts`: TypeScript interfaces and types.
-- `public/`: Static assets (images, audio, icons).
-
-## 📜 License
-
+---
 &copy; 2025 [datturbomoon](https://github.com/datturbomoon). All rights reserved.
