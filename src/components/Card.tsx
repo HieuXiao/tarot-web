@@ -9,6 +9,7 @@ interface CardProps {
   tx?: string;
   ty?: string;
   r?: string;
+  baseStyle?: React.CSSProperties;
 }
 
 const Card = ({ 
@@ -19,20 +20,24 @@ const Card = ({
   animationDelay,
   tx,
   ty,
-  r
+  r,
+  baseStyle
 }: CardProps) => {
   const innerStyle: React.CSSProperties = {
     animationDelay,
     // @ts-ignore
-    '--tx': tx,
-    '--ty': ty,
-    '--r': r,
+    '--tx': tx || '0px',
+    // @ts-ignore
+    '--ty': ty || '0px',
+    // @ts-ignore
+    '--r': r || '0deg',
   };
 
   return (
     <div 
       className={`card ${card.flipped ? 'flipped' : ''}`} 
       onClick={onClick}
+      style={baseStyle}
     >
       <div 
         className={`card-inner ${isScatter ? 'scatter-animation' : ''} ${isRegroup ? 'regroup-animation' : ''}`}

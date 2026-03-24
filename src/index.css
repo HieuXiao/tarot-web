@@ -18,8 +18,8 @@ GitHub: <https://github.com/datturbomoon>
 html,
 body {
   scroll-behavior: smooth;
-  overflow-x: hidden;
-  min-height: 100vh;
+  overflow: hidden;
+  height: 100vh;
   position: relative;
 }
 
@@ -53,6 +53,7 @@ button {
   display: flex;
   flex-direction: column;
   width: 100%;
+  height: 100vh;
   text-align: center;
   position: relative;
   z-index: 1;
@@ -72,6 +73,9 @@ button {
   gap: 1.5rem;
   padding: 0 2rem;
   flex-wrap: wrap;
+  margin-top: 1rem;
+  margin-bottom: 2rem;
+  /* Space from bottom */
 }
 
 .button-group button {
@@ -105,37 +109,34 @@ button {
 }
 
 .deck {
-  min-height: 100vh;
+  min-height: 520px;
   position: relative;
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  max-width: 1080px;
-  margin: 1.5rem auto;
-  gap: 1rem;
-  padding-left: 6rem;
-  padding-right: 0;
-  position: relative;
+  max-width: 1100px;
+  margin: 0 auto;
+  display: block;
+  /* Remove flex */
+  overflow: visible;
 }
 
 .card {
-  width: 15vw;
-  max-width: 130px;
-  min-width: 110px;
+  width: 11vw;
+  max-width: 115px;
+  min-width: 85px;
   aspect-ratio: 3.5 / 5;
   perspective: 1000px;
-  margin: 0.5rem;
   cursor: pointer;
-  position: relative;
-  flex: 0 0 auto;
-  margin-left: -88px;
-  margin-bottom: -70px;
+  position: absolute;
+  /* Changed from relative */
   z-index: 1;
   -webkit-tap-highlight-color: transparent;
   -webkit-user-select: none;
   user-select: none;
+  transition: transform 0.3s ease;
+  left: 50%;
+  bottom: 0px;
 }
 
+/* Remove overlapping grid margins */
 .card::before {
   content: '';
   position: absolute;
@@ -202,11 +203,13 @@ button {
     filter: blur(0px);
     z-index: 1;
   }
+
   60% {
     opacity: 0.7;
     filter: blur(6px);
     z-index: 0;
   }
+
   100% {
     transform: translate(var(--tx), var(--ty)) scale(0.7);
     opacity: 0.3;
@@ -221,10 +224,12 @@ button {
     opacity: 0.3;
     filter: blur(12px);
   }
+
   60% {
     opacity: 0.7;
     filter: blur(6px);
   }
+
   100% {
     transform: translate(0, 0) rotate(0deg) scale(1);
     opacity: 1;
@@ -245,6 +250,7 @@ button {
     transform: rotateY(90deg) scale(0.5);
     opacity: 0;
   }
+
   100% {
     transform: rotateY(0deg) scale(1);
     opacity: 1;
@@ -461,6 +467,7 @@ footer a:active {
     padding-left: 0;
     padding-right: 0;
   }
+
   .deck {
     margin-bottom: 3rem;
   }
@@ -478,12 +485,14 @@ footer a:active {
     align-items: center;
     justify-content: center;
   }
+
   .card-meaning {
     max-width: 100%;
     min-width: 0;
     align-items: center;
     text-align: center;
   }
+
   .card-advice {
     text-align: center;
   }
@@ -493,37 +502,45 @@ footer a:active {
   .button-group {
     justify-content: space-between;
   }
+
   .button-group button {
     font-size: 0.7rem;
   }
+
   #card-name {
     font-size: 2.2rem;
   }
+
   .meaning-upright,
   .meaning-reversed,
   .card-advice {
     font-size: 1rem;
   }
+
   footer {
     font-size: 0.75rem;
   }
 }
 
 ::-webkit-scrollbar {
-    width: 12px;
-    height: 12px;
+  width: 12px;
+  height: 12px;
 }
+
 ::-webkit-scrollbar-track {
-    background: #181B26;
-    border-radius: 10px;
+  background: #181B26;
+  border-radius: 10px;
 }
+
 ::-webkit-scrollbar-thumb {
-    background: #40361780;
-    border-radius: 10px;
+  background: #40361780;
+  border-radius: 10px;
 }
+
 ::-webkit-scrollbar-thumb:hover {
-    background: #403617b3;
+  background: #403617b3;
 }
+
 ::-webkit-scrollbar-corner {
-    background: #181B26;
+  background: #181B26;
 }
