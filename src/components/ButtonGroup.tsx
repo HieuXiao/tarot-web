@@ -1,6 +1,6 @@
 interface ButtonGroupProps {
   onShuffle: () => void;
-  onDrawRandom: () => void;
+  onDrawRandom: (count: number) => void;
   isShuffling: boolean;
 }
 
@@ -10,9 +10,18 @@ const ButtonGroup = ({ onShuffle, onDrawRandom, isShuffling }: ButtonGroupProps)
       <button id="shuffleBtn" onClick={onShuffle} disabled={isShuffling}>
         {isShuffling ? "Shuffling..." : "Shuffle Deck"}
       </button>
-      <button id="drawRandomBtn" onClick={onDrawRandom} disabled={isShuffling}>
-        Random Card
-      </button>
+
+      <div className="draw-group">
+        <button id="drawRandomBtn" onClick={() => onDrawRandom(1)} disabled={isShuffling}>
+          Draw 1
+        </button>
+        <button id="drawRandom2Btn" onClick={() => onDrawRandom(2)} disabled={isShuffling}>
+          Draw 2
+        </button>
+        <button id="drawRandom3Btn" onClick={() => onDrawRandom(3)} disabled={isShuffling}>
+          Draw 3
+        </button>
+      </div>
     </div>
   );
 };
