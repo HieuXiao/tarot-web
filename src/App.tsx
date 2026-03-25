@@ -143,11 +143,6 @@ function App() {
     <div className="container">
       <ParticlesBackground />
       <Header />
-      <ButtonGroup 
-        onShuffle={handleShuffle} 
-        onDrawRandom={handleDrawRandom} 
-        isShuffling={isShuffling}
-      />
       <SoundToggle 
         soundEnabled={soundEnabled} 
         onToggle={toggleSound} 
@@ -158,6 +153,11 @@ function App() {
         isShuffling={isShuffling}
         scatterData={scatterData}
         regroupData={regroupData}
+      />
+      <ButtonGroup 
+        onShuffle={handleShuffle} 
+        onDrawRandom={handleDrawRandom} 
+        isShuffling={isShuffling}
       />
       <Modal 
         isOpen={!!selectedCard} 

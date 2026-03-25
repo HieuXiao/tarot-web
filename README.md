@@ -1,73 +1,45 @@
-# React + TypeScript + Vite
+# 🔮 Mystic Draw - Ứng dụng Bói bài Tarot (React + TypeScript)
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Đây là phiên bản hiện đại hóa của ứng dụng bói bài Tarot, đã được chuyển đổi từ vanilla JavaScript sang React. Tài liệu này hướng dẫn cách thiết lập và làm việc với cấu trúc dự án mới.
 
-Currently, two official plugins are available:
+## 🛠️ Hướng dẫn Nhanh
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+Để chạy ứng dụng trên máy local, hãy làm theo các bước sau:
 
-## React Compiler
+1.  **Cài đặt các gói phụ thuộc (Dependencies)**:
+    ```bash
+    npm install
+    ```
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+2.  **Chạy máy chủ phát triển (Development Server)**:
+    ```bash
+    npm run dev
+    ```
 
-## Expanding the ESLint configuration
+3.  **Mở ứng dụng**:
+    Truy cập địa chỉ [http://localhost:5173](http://localhost:5173) trên trình duyệt của bạn.
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+## 💻 Các Lệnh Phát triển
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+| Lệnh | Hành động |
+| :--- | :--- |
+| `npm run dev` | Khởi chạy máy chủ phát triển Vite với tính năng cập nhật nhanh (HMR). |
+| `npm run build` | Xây dựng phiên bản sản xuất trong thư mục `/dist`. |
+| `npm run preview` | Xem trước bản build sản xuất trên máy local. |
+| `npm run lint` | Chạy ESLint để kiểm tra chất lượng code và lỗi TypeScript. |
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+## 📂 Cấu trúc Phân mục Dự án
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+- **`src/App.tsx`**: Logic chính của ứng dụng và quản lý trạng thái (state).
+- **`src/components/`**: Chứa toàn bộ các thành phần giao diện (Deck, Card, Modal, v.v.).
+- **`src/constants/tarotData.ts`**: Tệp dữ liệu trung tâm chứa thông tin của 78 lá bài và ý nghĩa của chúng.
+- **`src/hooks/useSound.ts`**: Hook tùy chỉnh để quản lý âm thanh phản hồi.
+- **`src/types.ts`**: Định nghĩa các Interface và Type cho dữ liệu bài Tarot.
+- **`public/`**: Chứa các tài nguyên tĩnh như hình ảnh lá bài (`/Cards`) và tệp âm thanh.
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## 🎨 Tùy chỉnh Ứng dụng
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+- **Ý nghĩa & Lời khuyên**: Chỉnh sửa tệp `src/constants/tarotData.ts` để thay đổi mô tả hoặc lời khuyên của các lá bài.
+- **Giao diện (Styles)**: Chỉnh sửa `src/index.css` cho các kiểu style toàn cục hoặc thêm CSS modules cho từng component cụ thể.
+- **Tài nguyên (Assets)**: Thêm hình ảnh hoặc âm thanh mới vào thư mục `public/` và cập nhật các hằng số tương ứng trong code.
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
