@@ -189,17 +189,17 @@ function App() {
       <ParticlesBackground />
       <Header />
       <SoundToggle soundEnabled={soundEnabled} onToggle={toggleSound} />
+      <ButtonGroup
+        onShuffle={handleShuffle}
+        onDrawRandom={handleDrawRandom}
+        isShuffling={isShuffling}
+      />
       <Deck
         cards={cards}
         onCardClick={handleCardClick}
         isShuffling={isShuffling}
         scatterData={scatterData}
         regroupData={regroupData}
-      />
-      <ButtonGroup
-        onShuffle={handleShuffle}
-        onDrawRandom={handleDrawRandom}
-        isShuffling={isShuffling}
       />
       <Modal
         key={selectedCards ? selectedCards[0].imgSrc : 'empty'}

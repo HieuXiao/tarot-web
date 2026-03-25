@@ -80,12 +80,13 @@ button {
 .button-group {
   display: flex;
   justify-content: center;
+  align-items: center;
   gap: 1.5rem;
   padding: 0 2rem;
   flex-wrap: wrap;
-  margin-top: 1rem;
-  margin-bottom: 2rem;
-  /* Space from bottom */
+  margin-top: 0.5rem;
+  margin-bottom: 1rem;
+  z-index: 10;
 }
 
 .button-group button {
@@ -132,7 +133,7 @@ button {
 .deck-container {
   display: flex;
   justify-content: center;
-  align-items: center;
+  align-items: flex-start;
   width: 100%;
   flex: 1;
   min-height: 0;
@@ -143,20 +144,21 @@ button {
 .deck-grid {
   display: grid;
   grid-template-columns: repeat(13, 1fr);
-  gap: 8px;
-  width: 100%;
-  max-width: 1100px;
+  gap: 4px; /* Tight gap as per reference */
+  width: 98%;
+  max-width: 1400px;
   margin: 0 auto;
-  padding: 1rem;
+  padding: 0.5rem;
   perspective: 1200px;
   transform-style: preserve-3d;
+  align-items: start;
 }
 
 .card-pile {
   position: relative;
-  width: clamp(70px, 9vw, 110px);
-  height: clamp(100px, 13vw, 160px);
-  flex-shrink: 0;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 3.5 / 5;
   cursor: pointer;
   transform-style: preserve-3d;
 }
@@ -231,7 +233,7 @@ button {
   position: absolute;
   width: 100%;
   height: 100%;
-  background-size: cover;
+  background-size: 100% 100%;
   backface-visibility: hidden;
   border-radius: 8px;
   overflow: hidden;
@@ -239,7 +241,7 @@ button {
 
 .card-front {
   position: relative;
-  background-size: cover;
+  background-size: 100% 100%;
   backface-visibility: hidden;
   transform: rotateY(180deg);
   border: 1px solid #070707;
@@ -389,7 +391,7 @@ button {
   background: rgba(0, 0, 0, 0.2);
   border-radius: 12px;
   padding: 1rem;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
 }
 
 .modal-image-thumb.multi-visible {
@@ -398,7 +400,7 @@ button {
   max-width: 100%;
   border-radius: 8px;
   margin-bottom: 1rem;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
 }
 
 .card-meaning.mini {
@@ -601,16 +603,35 @@ footer a:active {
   pointer-events: none;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 1024px) {
+  .deck-grid {
+    grid-template-columns: repeat(10, 1fr);
+    gap: 3px;
+  }
+}
+
+@media (max-width: 820px) { /* iPad Reference */
   body {
     padding-left: 0;
     padding-right: 0;
   }
 
   .deck-grid {
-    grid-template-columns: repeat(7, 1fr);
-    gap: 4px;
-    padding: 0.5rem;
+    grid-template-columns: repeat(8, 1fr);
+    gap: 2px;
+    padding: 0.2rem;
+  }
+
+  .container .title {
+    font-size: 2rem;
+    margin: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .deck-grid {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 2px;
   }
 }
 
