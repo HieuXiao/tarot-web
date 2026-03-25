@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import './App.css';
-import { CARD_MEANINGS, CARD_IMAGES } from './constants/tarotData';
 import type { TarotCard, TarotMeaning } from './types';
+import { fetchShuffledDeck, fetchCardMeaning } from './api/tarot';
 import ParticlesBackground from './components/ParticlesBackground';
 import Header from './components/Header';
 import ButtonGroup from './components/ButtonGroup';
@@ -20,90 +20,87 @@ function App() {
   const [isShuffling, setIsShuffling] = useState(false);
   const isProcessing = useRef(false);
   const [flipCount, setFlipCount] = useState(0);
-  const [selectedCard, setSelectedCard] = useState<{ meaning: TarotMeaning; imgSrc: string; isReversed: boolean } | null>(null);
-  
+  const [selectedCards, setSelectedCards] = useState<{ meaning: TarotMeaning; imgSrc: string; isReversed: boolean }[] | null>(null);
+
   // Animation states
-  const [scatterData, setScatterData] = useState<any[] | null>(null);
-  const [regroupData, setRegroupData] = useState<any[] | null>(null);
+  const [scatterData, setScatterData] = useState<{ tx: string; ty: string; r: string; delay: string }[] | null>(null);
+  const [regroupData, setRegroupData] = useState<{ delay: string }[] | null>(null);
 
   const { playShuffle, playFlip } = useSound(soundEnabled);
 
-  const initDeck = useCallback(() => {
-    const newCards = CARD_IMAGES.map((imgSrc, index) => ({
-      id: `${imgSrc}-${index}`,
-      imgSrc,
-      isReversed: Math.random() < 0.5,
-      flipped: false,
-    }));
-    // Fisher-Yates shuffle
-    for (let i = newCards.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [newCards[i], newCards[j]] = [newCards[j], newCards[i]];
+  // ─── Fetch initial deck from API ────────────────────────────────────────────
+  const initDeck = useCallback(async () => {
+    try {
+      const newCards = await fetchShuffledDeck();
+      setCards(newCards);
+      setFlipCount(0);
+    } catch (err) {
+      console.error('Failed to init deck:', err);
     }
-    setCards(newCards);
-    setFlipCount(0);
   }, []);
 
   useEffect(() => {
     initDeck();
   }, [initDeck]);
 
-  const handleShuffle = () => {
+  // ─── Shuffle: get new deck from API, run scatter/regroup animation ───────────
+  const handleShuffle = async () => {
     if (isShuffling || isProcessing.current) return;
 
     playShuffle();
     setIsShuffling(true);
     isProcessing.current = true;
     setFlipCount(0);
-    
-    // Create new shuffled deck but keep them face down
-    const newCards = CARD_IMAGES.map((imgSrc, index) => ({
-      id: `${imgSrc}-${index}-${Date.now()}`,
-      imgSrc,
-      isReversed: Math.random() < 0.5,
-      flipped: false,
-    }));
-    for (let i = newCards.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [newCards[i], newCards[j]] = [newCards[j], newCards[i]];
-    }
 
-    // Prepare scatter animation data
-    const sData = newCards.map((_, i) => ({
-      tx: (Math.random() - 0.5) * 120 + "px",
-      ty: (Math.random() - 0.5) * 80 + "px",
-      r: (Math.random() - 0.5) * 60 + "deg",
-      delay: `${i * 0.05}s`
-    }));
-    setScatterData(sData);
+    try {
+      // Fetch shuffled deck from backend
+      const newCards = await fetchShuffledDeck();
 
-    // After scatter, do regroup
-    const totalTime = 400 + newCards.length * 50; 
-    
-    setTimeout(() => {
-      playShuffle();
-      setScatterData(null);
-      setRegroupData(newCards.map((_, i) => ({ delay: `${i * 0.05}s` })));
-      setCards(newCards);
+      // Prepare scatter animation data (client-only visual)
+      const sData = newCards.map((_, i) => ({
+        tx: (Math.random() - 0.5) * 120 + "px",
+        ty: (Math.random() - 0.5) * 80 + "px",
+        r: (Math.random() - 0.5) * 60 + "deg",
+        delay: `${i * 0.05}s`,
+      }));
+      setScatterData(sData);
+
+      const totalTime = 400 + newCards.length * 50;
 
       setTimeout(() => {
-        setRegroupData(null);
-        setIsShuffling(false);
-        isProcessing.current = false;
+        playShuffle();
+        setScatterData(null);
+        setRegroupData(newCards.map((_, i) => ({ delay: `${i * 0.05}s` })));
+        setCards(newCards);
+
+        setTimeout(() => {
+          setRegroupData(null);
+          setIsShuffling(false);
+          isProcessing.current = false;
+        }, totalTime);
       }, totalTime);
-    }, totalTime);
+    } catch (err) {
+      console.error('Failed to shuffle deck:', err);
+      setIsShuffling(false);
+      isProcessing.current = false;
+    }
   };
 
-  const handleCardClick = (index: number) => {
-    if (isShuffling || isProcessing.current || selectedCard) return;
+  // ─── Card click: flip card, then fetch meaning from API ─────────────────────
+  const handleCardClick = async (index: number) => {
+    if (isShuffling || isProcessing.current || selectedCards) return;
 
     const card = cards[index];
     playFlip();
 
+    // Already flipped — just re-open modal using stored meaning from API
     if (card.flipped) {
-      const cardFile = card.imgSrc.split("/").pop() || "";
-      const meaning = CARD_MEANINGS[cardFile];
-      setSelectedCard({ meaning, imgSrc: card.imgSrc, isReversed: card.isReversed });
+      try {
+        const { meaning, isReversed } = await fetchCardMeaning(card.imgSrc);
+        setSelectedCards([{ meaning, imgSrc: card.imgSrc, isReversed: card.isReversed ?? isReversed }]);
+      } catch (err) {
+        console.error('Failed to fetch card meaning:', err);
+      }
       return;
     }
 
@@ -114,23 +111,71 @@ function App() {
     setCards(newCards);
     setFlipCount(newFlipCount);
 
-    const cardFile = card.imgSrc.split("/").pop() || "";
-    const meaning = CARD_MEANINGS[cardFile];
-    
-    // Optional delay before showing modal
-    setTimeout(() => {
-      setSelectedCard({ meaning, imgSrc: card.imgSrc, isReversed: card.isReversed });
-      isProcessing.current = false;
+    // Fetch meaning from API while flip animation plays
+    setTimeout(async () => {
+      try {
+        const { meaning, isReversed } = await fetchCardMeaning(card.imgSrc);
+        setSelectedCards([{ meaning, imgSrc: card.imgSrc, isReversed }]);
+      } catch (err) {
+        console.error('Failed to fetch card meaning:', err);
+      } finally {
+        isProcessing.current = false;
+      }
     }, 500);
   };
 
-  const handleDrawRandom = () => {
-    if (isShuffling || isProcessing.current || selectedCard) return;
-    const unflippedIndices = cards.map((c, i) => c.flipped ? -1 : i).filter(i => i !== -1);
-    if (unflippedIndices.length === 0) return;
+  // ─── Draw random: pick random unflipped cards or call API ───────────────────
+  const handleDrawRandom = async (count: number) => {
+    if (isShuffling || isProcessing.current || selectedCards) return;
+    
+    // For 1 card, use the existing logic to pick an unflipped card visually
+    if (count === 1) {
+      const unflippedIndices = cards
+        .map((c, i) => (c.flipped ? -1 : i))
+        .filter((i) => i !== -1);
+      if (unflippedIndices.length === 0) return;
 
-    const randomIndex = unflippedIndices[Math.floor(Math.random() * unflippedIndices.length)];
-    handleCardClick(randomIndex);
+      const randomIndex =
+        unflippedIndices[Math.floor(Math.random() * unflippedIndices.length)];
+      handleCardClick(randomIndex);
+      return;
+    }
+
+    // For 2 or 3 cards, fetch from the backend API
+    isProcessing.current = true;
+    playFlip();
+
+    try {
+      // Dynamically import the api fetches to avoid cluttering top level if unnecessary
+      const { fetchDrawTwo, fetchDrawThree } = await import('./api/tarot');
+      const drawnCards = count === 2 ? await fetchDrawTwo() : await fetchDrawThree();
+      
+      // Update local deck state to mark these cards as flipped
+      const newCards = [...cards];
+      let currentFlipCount = flipCount;
+      
+      drawnCards.forEach(drawnCard => {
+        // Find the card in the deck
+        const deckIndex = newCards.findIndex(c => c.imgSrc === drawnCard.imgSrc);
+        if (deckIndex !== -1 && !newCards[deckIndex].flipped) {
+          currentFlipCount++;
+          newCards[deckIndex] = { ...newCards[deckIndex], flipped: true, flipOrder: currentFlipCount };
+        }
+      });
+      
+      setCards(newCards);
+      setFlipCount(currentFlipCount);
+      
+      // Delay modal to show physical card flips
+      setTimeout(() => {
+        setSelectedCards(drawnCards);
+        isProcessing.current = false;
+      }, 600);
+      
+    } catch (err) {
+      console.error('Failed to draw multiple cards', err);
+      isProcessing.current = false;
+    }
   };
 
   const toggleSound = () => {
@@ -143,28 +188,24 @@ function App() {
     <div className="container">
       <ParticlesBackground />
       <Header />
-      <SoundToggle 
-        soundEnabled={soundEnabled} 
-        onToggle={toggleSound} 
-      />
-      <Deck 
-        cards={cards} 
-        onCardClick={handleCardClick} 
+      <SoundToggle soundEnabled={soundEnabled} onToggle={toggleSound} />
+      <Deck
+        cards={cards}
+        onCardClick={handleCardClick}
         isShuffling={isShuffling}
         scatterData={scatterData}
         regroupData={regroupData}
       />
-      <ButtonGroup 
-        onShuffle={handleShuffle} 
-        onDrawRandom={handleDrawRandom} 
+      <ButtonGroup
+        onShuffle={handleShuffle}
+        onDrawRandom={handleDrawRandom}
         isShuffling={isShuffling}
       />
-      <Modal 
-        isOpen={!!selectedCard} 
-        onClose={() => setSelectedCard(null)} 
-        cardMeaning={selectedCard?.meaning || null}
-        imgSrc={selectedCard?.imgSrc || ""}
-        isReversed={selectedCard?.isReversed || false}
+      <Modal
+        key={selectedCards ? selectedCards[0].imgSrc : 'empty'}
+        isOpen={!!selectedCards}
+        onClose={() => setSelectedCards(null)}
+        cards={selectedCards || []}
       />
       <Footer />
     </div>

@@ -115,6 +115,15 @@ button {
   transform: translateY(-2px);
 }
 
+.draw-group {
+  display: flex;
+  gap: 0.8rem;
+}
+
+.draw-group button {
+  padding: 0.7rem 1.2rem;
+}
+
 .button-group button:active {
   border: 1px inset #8383834d;
   filter: brightness(0.9);
@@ -350,6 +359,85 @@ button {
   border-radius: 8px;
   display: block;
   animation: none;
+}
+
+/* Horizontal Multi-Card Layout Styling */
+.modal-content.multi-column-layout {
+  flex-direction: column;
+  max-width: 95vw;
+  align-items: center;
+}
+
+.cards-grid {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: stretch;
+  gap: 1.5rem;
+  width: 100%;
+  overflow-x: auto;
+  padding: 0.5rem;
+}
+
+.card-column {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  flex: 1;
+  min-width: 220px;
+  max-width: 320px;
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 12px;
+  padding: 1rem;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+}
+
+.modal-image-thumb.multi-visible {
+  max-height: clamp(150px, 40vh, 45vh);
+  width: auto;
+  max-width: 100%;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+}
+
+.card-meaning.mini {
+  max-width: 100%;
+  min-width: 0;
+  text-align: center;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.card-name-mini {
+  font-family: var(--title-font);
+  color: #d8b2ff;
+  font-weight: 300;
+  font-size: 2.2rem;
+  letter-spacing: 0.05rem;
+  text-shadow: 0 0 8px rgba(216, 178, 255, 0.5);
+  margin-bottom: 0.2rem;
+}
+
+.meaning-direction {
+  font-size: 0.8rem;
+  color: #c48fff;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 0.5rem;
+}
+
+.meaning-text.mini-text {
+  font-size: 0.95rem;
+  line-height: 1.4;
+  margin-bottom: 0.5rem;
+}
+
+.card-advice.mini-text {
+  font-size: 0.85rem;
+  line-height: 1.3;
 }
 
 .card-meaning {

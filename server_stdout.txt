@@ -1,0 +1,4 @@
+🃏 Tarot API server running at http://localhost:3001
+   GET /api/shuffle  → returns shuffled 78-card deck
+   GET /api/draw     → returns a card's meaning
+   📚 Swagger UI available at http://localhost:3001/api-docs
