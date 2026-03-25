@@ -127,7 +127,7 @@ function App() {
   // ─── Draw random: pick random unflipped cards or call API ───────────────────
   const handleDrawRandom = async (count: number) => {
     if (isShuffling || isProcessing.current || selectedCards) return;
-    
+
     // For 1 card, use the existing logic to pick an unflipped card visually
     if (count === 1) {
       const unflippedIndices = cards
@@ -149,11 +149,11 @@ function App() {
       // Dynamically import the api fetches to avoid cluttering top level if unnecessary
       const { fetchDrawTwo, fetchDrawThree } = await import('./api/tarot');
       const drawnCards = count === 2 ? await fetchDrawTwo() : await fetchDrawThree();
-      
+
       // Update local deck state to mark these cards as flipped
       const newCards = [...cards];
       let currentFlipCount = flipCount;
-      
+
       drawnCards.forEach(drawnCard => {
         // Find the card in the deck
         const deckIndex = newCards.findIndex(c => c.imgSrc === drawnCard.imgSrc);
@@ -162,16 +162,16 @@ function App() {
           newCards[deckIndex] = { ...newCards[deckIndex], flipped: true, flipOrder: currentFlipCount };
         }
       });
-      
+
       setCards(newCards);
       setFlipCount(currentFlipCount);
-      
+
       // Delay modal to show physical card flips
       setTimeout(() => {
         setSelectedCards(drawnCards);
         isProcessing.current = false;
       }, 600);
-      
+
     } catch (err) {
       console.error('Failed to draw multiple cards', err);
       isProcessing.current = false;
