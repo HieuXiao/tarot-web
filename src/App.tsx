@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import './App.css';
 import { CARD_MEANINGS, CARD_IMAGES } from './constants/tarotData';
 import type { TarotCard, TarotMeaning } from './types';
@@ -18,6 +18,7 @@ function App() {
     return saved !== null ? saved === "true" : true;
   });
   const [isShuffling, setIsShuffling] = useState(false);
+  const isProcessing = useRef(false);
   const [flipCount, setFlipCount] = useState(0);
   const [selectedCard, setSelectedCard] = useState<{ meaning: TarotMeaning; imgSrc: string; isReversed: boolean } | null>(null);
   
@@ -48,10 +49,11 @@ function App() {
   }, [initDeck]);
 
   const handleShuffle = () => {
-    if (isShuffling) return;
+    if (isShuffling || isProcessing.current) return;
 
     playShuffle();
     setIsShuffling(true);
+    isProcessing.current = true;
     setFlipCount(0);
     
     // Create new shuffled deck but keep them face down
@@ -87,12 +89,13 @@ function App() {
       setTimeout(() => {
         setRegroupData(null);
         setIsShuffling(false);
+        isProcessing.current = false;
       }, totalTime);
     }, totalTime);
   };
 
   const handleCardClick = (index: number) => {
-    if (isShuffling) return;
+    if (isShuffling || isProcessing.current || selectedCard) return;
 
     const card = cards[index];
     playFlip();
@@ -104,6 +107,7 @@ function App() {
       return;
     }
 
+    isProcessing.current = true;
     const newCards = [...cards];
     const newFlipCount = flipCount + 1;
     newCards[index] = { ...card, flipped: true, flipOrder: newFlipCount };
@@ -116,10 +120,12 @@ function App() {
     // Optional delay before showing modal
     setTimeout(() => {
       setSelectedCard({ meaning, imgSrc: card.imgSrc, isReversed: card.isReversed });
+      isProcessing.current = false;
     }, 500);
   };
 
   const handleDrawRandom = () => {
+    if (isShuffling || isProcessing.current || selectedCard) return;
     const unflippedIndices = cards.map((c, i) => c.flipped ? -1 : i).filter(i => i !== -1);
     if (unflippedIndices.length === 0) return;
 

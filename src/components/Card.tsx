@@ -1,3 +1,4 @@
+import React from 'react';
 import type { TarotCard } from '../types';
 
 interface CardProps {
@@ -12,43 +13,40 @@ interface CardProps {
   baseStyle?: React.CSSProperties;
 }
 
-const Card = ({ 
-  card, 
-  onClick, 
-  isScatter, 
-  isRegroup, 
+const Card = ({
+  card,
+  onClick,
+  isScatter,
+  isRegroup,
   animationDelay,
   tx,
   ty,
   r,
   baseStyle
 }: CardProps) => {
-  const innerStyle: React.CSSProperties = {
+  const innerStyle = {
     animationDelay,
-    // @ts-ignore
     '--tx': tx || '0px',
-    // @ts-ignore
     '--ty': ty || '0px',
-    // @ts-ignore
     '--r': r || '0deg',
-  };
+  } as React.CSSProperties;
 
   return (
-    <div 
-      className={`card ${card.flipped ? 'flipped' : ''}`} 
+    <div
+      className={`card ${card.flipped ? 'flipped' : ''}`}
       onClick={onClick}
       style={baseStyle}
     >
-      <div 
+      <div
         className={`card-inner ${isScatter ? 'scatter-animation' : ''} ${isRegroup ? 'regroup-animation' : ''}`}
         style={innerStyle}
       >
         <div className="card-back"></div>
-        <div 
+        <div
           className={`card-front ${card.isReversed ? 'reversed' : ''}`}
           style={{ backgroundImage: `url('/${card.imgSrc}')` }}
         >
-          {card.flipped && card.flipOrder && (
+          {card.flipped && card.flipOrder !== undefined && (
             <span className="card-number">{card.flipOrder}</span>
           )}
         </div>
