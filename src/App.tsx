@@ -73,17 +73,17 @@ function App() {
       tx: (Math.random() - 0.5) * 120 + "px",
       ty: (Math.random() - 0.5) * 80 + "px",
       r: (Math.random() - 0.5) * 60 + "deg",
-      delay: `${i * 0.05}s`
+      delay: `${i * 0.015}s`
     }));
     setScatterData(sData);
 
     // After scatter, do regroup
-    const totalTime = 400 + newCards.length * 50; 
+    const totalTime = 400 + newCards.length * 15; 
     
     setTimeout(() => {
       playShuffle();
       setScatterData(null);
-      setRegroupData(newCards.map((_, i) => ({ delay: `${i * 0.05}s` })));
+      setRegroupData(newCards.map((_, i) => ({ delay: `${i * 0.015}s` })));
       setCards(newCards);
 
       setTimeout(() => {
