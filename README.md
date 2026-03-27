@@ -1,45 +1,80 @@
-# 🔮 Mystic Draw - Ứng dụng Bói bài Tarot (React + TypeScript)
+# Mystic Draw - Tarot Web App
 
-Đây là phiên bản hiện đại hóa của ứng dụng bói bài Tarot, đã được chuyển đổi từ vanilla JavaScript sang React. Tài liệu này hướng dẫn cách thiết lập và làm việc với cấu trúc dự án mới.
+Mystic Draw là ứng dụng bói bài Tarot chạy trên web, cho phép xáo bộ bài, rút 1/2/3 lá, xem ý nghĩa xuôi/ngược và lời khuyên cho từng lá.
 
-## 🛠️ Hướng dẫn Nhanh
+## Tác dụng
 
-Để chạy ứng dụng trên máy local, hãy làm theo các bước sau:
+- Mô phỏng trải bài Tarot trực quan trên giao diện web.
+- Hỗ trợ rút bài ngẫu nhiên và xem diễn giải theo từng lá.
+- Cung cấp API backend để frontend lấy dữ liệu deck/meaning.
+- Có Swagger UI để test API nhanh trong quá trình phát triển.
 
-1.  **Cài đặt các gói phụ thuộc (Dependencies)**:
-    ```bash
-    npm install
-    ```
+## Tech Stack
 
-2.  **Chạy máy chủ phát triển (Development Server)**:
-    ```bash
-    npm run dev
-    ```
+- Frontend: React 19, TypeScript, Vite
+- Styling: CSS thuần
+- Backend: Node.js, Express
+- API docs: Swagger (swagger-jsdoc + swagger-ui-express)
+- Tooling: ESLint, TypeScript, concurrently
 
-3.  **Mở ứng dụng**:
-    Truy cập địa chỉ [http://localhost:5173](http://localhost:5173) trên trình duyệt của bạn.
+## Cách chạy dự án
 
-## 💻 Các Lệnh Phát triển
+### 1) Cài dependencies
 
-| Lệnh | Hành động |
+```bash
+npm install
+```
+
+### 2) Chạy cả frontend và backend cùng lúc
+
+```bash
+npm run dev:full
+```
+
+Sau khi chạy thành công:
+
+- Frontend: http://localhost:5173
+- Backend API: http://localhost:3002
+- Swagger UI: http://localhost:3002/api-docs
+
+### 3) Chạy riêng từng phần (tuỳ chọn)
+
+Chạy frontend:
+
+```bash
+npm run dev
+```
+
+Chạy backend:
+
+```bash
+npm run server
+```
+
+## Scripts chính
+
+| Script | Mô tả |
 | :--- | :--- |
-| `npm run dev` | Khởi chạy máy chủ phát triển Vite với tính năng cập nhật nhanh (HMR). |
-| `npm run build` | Xây dựng phiên bản sản xuất trong thư mục `/dist`. |
-| `npm run preview` | Xem trước bản build sản xuất trên máy local. |
-| `npm run lint` | Chạy ESLint để kiểm tra chất lượng code và lỗi TypeScript. |
+| `npm run dev` | Chạy frontend bằng Vite (HMR). |
+| `npm run server` | Chạy backend Express tại cổng 3002. |
+| `npm run dev:full` | Chạy đồng thời frontend + backend. |
+| `npm run build` | Build production ra thư mục `dist/`. |
+| `npm run preview` | Preview bản build production. |
+| `npm run lint` | Kiểm tra lint toàn bộ dự án. |
 
-## 📂 Cấu trúc Phân mục Dự án
+## API chính
 
-- **`src/App.tsx`**: Logic chính của ứng dụng và quản lý trạng thái (state).
-- **`src/components/`**: Chứa toàn bộ các thành phần giao diện (Deck, Card, Modal, v.v.).
-- **`src/constants/tarotData.ts`**: Tệp dữ liệu trung tâm chứa thông tin của 78 lá bài và ý nghĩa của chúng.
-- **`src/hooks/useSound.ts`**: Hook tùy chỉnh để quản lý âm thanh phản hồi.
-- **`src/types.ts`**: Định nghĩa các Interface và Type cho dữ liệu bài Tarot.
-- **`public/`**: Chứa các tài nguyên tĩnh như hình ảnh lá bài (`/Cards`) và tệp âm thanh.
+- `GET /ping`: Health check
+- `GET /api/shuffle`: Trả về bộ bài đã xáo
+- `GET /api/draw?imgSrc=...`: Trả về ý nghĩa một lá (hoặc random nếu không truyền `imgSrc`)
+- `GET /api/draw/two`: Rút ngẫu nhiên 2 lá
+- `GET /api/draw/three`: Rút ngẫu nhiên 3 lá
 
-## 🎨 Tùy chỉnh Ứng dụng
+## Cấu trúc thư mục ngắn gọn
 
-- **Ý nghĩa & Lời khuyên**: Chỉnh sửa tệp `src/constants/tarotData.ts` để thay đổi mô tả hoặc lời khuyên của các lá bài.
-- **Giao diện (Styles)**: Chỉnh sửa `src/index.css` cho các kiểu style toàn cục hoặc thêm CSS modules cho từng component cụ thể.
-- **Tài nguyên (Assets)**: Thêm hình ảnh hoặc âm thanh mới vào thư mục `public/` và cập nhật các hằng số tương ứng trong code.
-
+- `src/`: mã nguồn frontend React + TypeScript
+- `src/components/`: UI components (Deck, Card, Modal, ...)
+- `src/api/`: hàm gọi API backend
+- `src/constants/`: dữ liệu Tarot và constants
+- `server/`: Express server và dữ liệu Tarot phía backend
+- `public/`: assets tĩnh (ảnh lá bài, favicon, ...)
