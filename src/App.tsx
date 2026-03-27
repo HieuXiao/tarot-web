@@ -1,7 +1,13 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import './App.css';
 import type { TarotCard, TarotMeaning } from './types';
-import { fetchShuffledDeck, fetchCardMeaning } from './api/tarot';
+import {
+  fetchShuffledDeck,
+  fetchCardMeaning,
+  fetchCurrentState,
+  fetchDrawTwo,
+  fetchDrawThree,
+} from './api/tarot';
 import ParticlesBackground from './components/ParticlesBackground';
 import Header from './components/Header';
 import ButtonGroup from './components/ButtonGroup';
@@ -31,6 +37,14 @@ function App() {
   // ─── Fetch initial deck from API ────────────────────────────────────────────
   const initDeck = useCallback(async () => {
     try {
+      const state = await fetchCurrentState();
+
+      if (state.hasDeck && state.cards.length > 0) {
+        setCards(state.cards);
+        setFlipCount(state.cards.filter((card) => card.flipped).length);
+        return;
+      }
+
       const newCards = await fetchShuffledDeck();
       setCards(newCards);
       setFlipCount(0);
@@ -146,8 +160,6 @@ function App() {
     playFlip();
 
     try {
-      // Dynamically import the api fetches to avoid cluttering top level if unnecessary
-      const { fetchDrawTwo, fetchDrawThree } = await import('./api/tarot');
       const drawnCards = count === 2 ? await fetchDrawTwo() : await fetchDrawThree();
 
       // Update local deck state to mark these cards as flipped

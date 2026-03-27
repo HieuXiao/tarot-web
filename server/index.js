@@ -1,5 +1,8 @@
 const express = require("express");
 const cors = require("cors");
+const session = require("express-session");
+const { RedisStore } = require("connect-redis");
+const { createClient } = require("redis");
 const swaggerUi = require("swagger-ui-express");
 const swaggerJsdoc = require("swagger-jsdoc");
 const path = require("path");
@@ -7,9 +10,47 @@ const { CARD_MEANINGS, CARD_IMAGES } = require("./tarotData");
 
 const app = express();
 const PORT = 3002;
+const FRONTEND_ORIGIN = process.env.FRONTEND_ORIGIN || "http://localhost:5173";
+const SESSION_SECRET = process.env.SESSION_SECRET || "change-me-in-production";
+const CROSS_SITE_COOKIE = process.env.CROSS_SITE_COOKIE === "true";
+const REDIS_URL = process.env.REDIS_URL || "redis://127.0.0.1:6379";
+const SESSION_PREFIX = process.env.SESSION_PREFIX || "mystic:";
 
-app.use(cors());
+const redisClient = createClient({
+  url: REDIS_URL,
+});
+
+redisClient.on("error", (error) => {
+  console.error("Redis client error:", error);
+});
+
+const redisStore = new RedisStore({
+  client: redisClient,
+  prefix: SESSION_PREFIX,
+});
+
+app.use(
+  cors({
+    origin: FRONTEND_ORIGIN,
+    credentials: true,
+  })
+);
 app.use(express.json());
+app.use(
+  session({
+    name: "mystic.sid",
+    secret: SESSION_SECRET,
+    store: redisStore,
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+      httpOnly: true,
+      sameSite: CROSS_SITE_COOKIE ? "none" : "lax",
+      secure: CROSS_SITE_COOKIE,
+      maxAge: 1000 * 60 * 60 * 24,
+    },
+  })
+);
 
 // --- Swagger Configuration ---
 const swaggerOptions = {
@@ -55,6 +96,33 @@ function buildDeck(imgSrcArray) {
   }));
 }
 
+function getSessionDeck(req) {
+  return Array.isArray(req.session.deck) ? req.session.deck : null;
+}
+
+function ensureSessionDeck(req) {
+  const existingDeck = getSessionDeck(req);
+  if (existingDeck) return existingDeck;
+
+  const cards = buildDeck(shuffleArray(CARD_IMAGES));
+  req.session.deck = cards;
+  return cards;
+}
+
+function getMeaningByImgSrc(imgSrc) {
+  const cardFile = String(imgSrc).split("/").pop() || "";
+  return CARD_MEANINGS[cardFile] || null;
+}
+
+function sampleWithoutReplacement(items, count) {
+  const copy = [...items];
+  for (let i = copy.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [copy[i], copy[j]] = [copy[j], copy[i]];
+  }
+  return copy.slice(0, count);
+}
+
 /**
  * @openapi
  * /api/shuffle:
@@ -85,7 +153,17 @@ function buildDeck(imgSrcArray) {
 app.get("/api/shuffle", (_req, res) => {
   const shuffledImages = shuffleArray(CARD_IMAGES);
   const cards = buildDeck(shuffledImages);
+  _req.session.deck = cards;
   res.json({ cards });
+});
+
+app.get("/api/current-state", (req, res) => {
+  const cards = getSessionDeck(req);
+  if (!cards) {
+    return res.json({ hasDeck: false, cards: [] });
+  }
+
+  return res.json({ hasDeck: true, cards });
 });
 
 /**
@@ -131,39 +209,77 @@ app.get("/api/shuffle", (_req, res) => {
  *         description: Card image not found.
  */
 app.get("/api/draw", (req, res) => {
+  const deck = ensureSessionDeck(req);
   let { imgSrc } = req.query;
 
   if (!imgSrc) {
-    // Pick random card
-    const randomFile =
-      CARD_IMAGES[Math.floor(Math.random() * CARD_IMAGES.length)];
-    imgSrc = randomFile;
+    const unflipped = deck.filter((card) => !card.flipped);
+    if (unflipped.length === 0) {
+      return res.status(400).json({ error: "No cards left to draw." });
+    }
+    const randomCard =
+      unflipped[Math.floor(Math.random() * unflipped.length)];
+    imgSrc = randomCard.imgSrc;
   }
 
-  // imgSrc may be full path like "Cards/00-TheFool.webp" — extract filename only
-  const cardFile = String(imgSrc).split("/").pop() || "";
-  const meaning = CARD_MEANINGS[cardFile];
+  const deckIndex = deck.findIndex((card) => card.imgSrc === String(imgSrc));
+  if (deckIndex === -1) {
+    return res.status(404).json({ error: `Card not found in current deck: ${imgSrc}` });
+  }
+
+  const deckCard = deck[deckIndex];
+  const meaning = getMeaningByImgSrc(deckCard.imgSrc);
 
   if (!meaning) {
-    return res.status(404).json({ error: `Card not found: ${cardFile}` });
+    return res.status(404).json({ error: `Card meaning not found: ${deckCard.imgSrc}` });
   }
 
-  const isReversed = Math.random() < 0.5;
-  res.json({ meaning, isReversed, imgSrc });
+  if (!deckCard.flipped) {
+    const flippedCount = deck.reduce((count, card) => count + (card.flipped ? 1 : 0), 0);
+    deck[deckIndex] = {
+      ...deckCard,
+      flipped: true,
+      flipOrder: flippedCount + 1,
+    };
+    req.session.deck = deck;
+  }
+
+  const updatedCard = deck[deckIndex];
+  res.json({ meaning, isReversed: updatedCard.isReversed, imgSrc: updatedCard.imgSrc });
 });
 
 // --- Helper: draw multiple unique random cards ---
-function drawRandomCards(count) {
-  const shuffled = shuffleArray(CARD_IMAGES);
-  return shuffled.slice(0, count).map((imgSrc) => {
-    const cardFile = String(imgSrc).split("/").pop() || "";
-    const meaning = CARD_MEANINGS[cardFile];
+function drawRandomCardsFromSession(req, count) {
+  const deck = ensureSessionDeck(req);
+  const unflipped = deck.filter((card) => !card.flipped);
+
+  if (unflipped.length < count) {
+    return { error: `Not enough cards left. Remaining: ${unflipped.length}` };
+  }
+
+  const selected = sampleWithoutReplacement(unflipped, count);
+  let flippedCount = deck.reduce((total, card) => total + (card.flipped ? 1 : 0), 0);
+
+  const selectedImgSrcSet = new Set(selected.map((card) => card.imgSrc));
+  const nextDeck = deck.map((card) => {
+    if (!selectedImgSrcSet.has(card.imgSrc) || card.flipped) return card;
+    flippedCount += 1;
     return {
-      meaning,
-      isReversed: Math.random() < 0.5,
-      imgSrc,
+      ...card,
+      flipped: true,
+      flipOrder: flippedCount,
     };
   });
+
+  req.session.deck = nextDeck;
+
+  const cards = selected.map((card) => ({
+    meaning: getMeaningByImgSrc(card.imgSrc),
+    isReversed: card.isReversed,
+    imgSrc: card.imgSrc,
+  }));
+
+  return { cards };
 }
 
 /**
@@ -192,8 +308,11 @@ function drawRandomCards(count) {
  *                         type: string
  */
 app.get("/api/draw/two", (_req, res) => {
-  const cards = drawRandomCards(2);
-  res.json({ cards });
+  const result = drawRandomCardsFromSession(_req, 2);
+  if (result.error) {
+    return res.status(400).json({ error: result.error });
+  }
+  return res.json({ cards: result.cards });
 });
 
 /**
@@ -222,14 +341,26 @@ app.get("/api/draw/two", (_req, res) => {
  *                         type: string
  */
 app.get("/api/draw/three", (_req, res) => {
-  const cards = drawRandomCards(3);
-  res.json({ cards });
+  const result = drawRandomCardsFromSession(_req, 3);
+  if (result.error) {
+    return res.status(400).json({ error: result.error });
+  }
+  return res.json({ cards: result.cards });
 });
 
+async function startServer() {
+  await redisClient.connect();
+  console.log(`Redis connected at ${REDIS_URL}`);
 
-app.listen(PORT, () => {
-  console.log(`\n🃏 Tarot API server running at http://localhost:${PORT}`);
-  console.log(`   GET /api/shuffle  → returns shuffled 78-card deck`);
-  console.log(`   GET /api/draw     → returns a card's meaning`);
-  console.log(`   📚 Swagger UI available at http://localhost:${PORT}/api-docs\n`);
+  app.listen(PORT, () => {
+    console.log(`\n🃏 Tarot API server running at http://localhost:${PORT}`);
+    console.log(`   GET /api/shuffle  → returns shuffled 78-card deck`);
+    console.log(`   GET /api/draw     → returns a card's meaning`);
+    console.log(`   📚 Swagger UI available at http://localhost:${PORT}/api-docs\n`);
+  });
+}
+
+startServer().catch((error) => {
+  console.error("Failed to start server:", error);
+  process.exit(1);
 });
